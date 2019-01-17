@@ -1,4 +1,4 @@
-package com.akash.redisEsDemo.data;
+package com.akash.redis.data;
 
 import javax.persistence.*;
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package com.akash.redisEsDemo.service;
+package com.akash.redis.service;
 
 import java.util.Collections;
 import java.util.List;

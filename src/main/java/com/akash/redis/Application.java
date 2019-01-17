@@ -1,4 +1,4 @@
-package com.akash.redisEsDemo;
+package com.akash.redis;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,8 +12,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.akash.redisEsDemo.data.User;
-import com.akash.redisEsDemo.repo.UserRepository;
+import com.akash.redis.data.User;
+import com.akash.redis.repo.UserRepository;
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "com.akash.redisEsDemo.*" })

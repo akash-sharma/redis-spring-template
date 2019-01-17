@@ -1,4 +1,4 @@
-package com.akash.redisEsDemo.configuration;
+package com.akash.redis.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

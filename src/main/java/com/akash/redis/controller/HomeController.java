@@ -1,4 +1,4 @@
-package com.akash.redisEsDemo.controller;
+package com.akash.redis.controller;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.akash.redisEsDemo.data.User;
-import com.akash.redisEsDemo.repo.UserRepository;
-import com.akash.redisEsDemo.service.RedisClientService;
+import com.akash.redis.data.User;
+import com.akash.redis.repo.UserRepository;
+import com.akash.redis.service.RedisClientService;
 
 @Controller
 public class HomeController {
@@ -88,7 +88,7 @@ public class HomeController {
 	@Autowired
 	private UserRepository userRepository;
 
-	@Cacheable(value = "userData", key = "#userId")
+	@Cacheable(value = "userDataA", key = "#userId"/*, unless = "#result.followers < 12000"*/)
 	@RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
 	@ResponseBody
 	public String getUser(@PathVariable String userId) {
@@ -101,7 +101,7 @@ public class HomeController {
 		return user.toString();
 	}
 
-	@CachePut(value = "userData", key = "#user.id")
+	@CachePut(value = "userDataA", key = "#user.id")
 	@PutMapping("/update")
 	@ResponseBody
 	public String updatePersonByID(@RequestBody User user) {
@@ -109,7 +109,7 @@ public class HomeController {
 		return "added";
 	}
 
-	@CacheEvict(value = "userData", allEntries = true)
+	@CacheEvict(value = "userDataA", allEntries = true)
 	@DeleteMapping("users/{id}")
 	public void deleteUserByID(@PathVariable Long id) {
 		userRepository.deleteById(id);
