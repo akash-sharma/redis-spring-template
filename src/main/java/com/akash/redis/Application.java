@@ -16,7 +16,7 @@ import com.akash.redis.data.User;
 import com.akash.redis.repo.UserRepository;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "com.akash.redisEsDemo.*" })
+@ComponentScan(basePackages = { "com.akash.redis.*" })
 // @PropertySource("classpath:/config/${java_api_env_name}/config.properties")
 @EnableCaching
 public class Application implements CommandLineRunner {
