@@ -17,62 +17,81 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.akash.redis.data.User;
+import com.akash.redis.Constants;
+import com.akash.redis.model.dto.BasicPutRequest;
+import com.akash.redis.model.dto.GetRequest;
+import com.akash.redis.model.dto.ListPutRequest;
+import com.akash.redis.model.entity.User;
 import com.akash.redis.repo.UserRepository;
-import com.akash.redis.service.RedisClientService;
+import com.akash.redis.service.CacheClientService;
 
 @Controller
 public class HomeController {
-
-	// <------------------------------->
-	// Redis cache for key value pair arguments via Spring redis template
-	// <------------------------------->
-
-	private final String cacheName = "nameList";
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
-	private RedisClientService redisClientService;
+	private CacheClientService cacheClientService;
 
-	@RequestMapping(value = "/addToList", method = RequestMethod.POST)
+	// <------------------------------->
+	// Cache via Spring redis template
+	// <------------------------------->
+
 	@ResponseBody
-	public String saveName(HttpServletRequest request) {
-		String name = request.getParameter("name");
-		if (name != null) {
-			redisClientService.addToList(cacheName, name);
-		} else {
-			return "name param not available";
+	@RequestMapping(value = "/findAllByName/{userName}", method = RequestMethod.GET)
+	public String findAllByName(@PathVariable String userName) {
+		
+		GetRequest<User> getRequest = new GetRequest<>();
+		getRequest.setKey(userName);
+		getRequest.setNamespace(Constants.USERS_BY_NAME_NAMESPACE);
+		List<User> cachedUsers = cacheClientService.getList(getRequest, User.class);
+		if(cachedUsers.size() > 0) {
+			return cachedUsers.toString();
 		}
-		return name + " added";
-	}
-
-	@RequestMapping(value = "/getList", method = RequestMethod.GET)
-	@ResponseBody
-	public String getName() {
-		List<String> list = redisClientService.getList(cacheName);
-		if (list.size() == 0) {
+		
+		List<User> users = userRepository.findAllByName(userName);
+		
+		ListPutRequest<User> putRequest = new ListPutRequest<>();
+		putRequest.setNamespace(Constants.USERS_BY_NAME_NAMESPACE);
+		putRequest.setKey(userName);
+		putRequest.setTtl(Constants.USERS_BY_NAME_TTL);
+		putRequest.setValues(users);
+		cacheClientService.addToList(putRequest);
+		if (users.size() == 0) {
 			return "[]";
 		}
-		return list.toString();
+		return users.toString();
 	}
 
-	@RequestMapping(value = "/set", method = RequestMethod.POST)
 	@ResponseBody
+	@RequestMapping(value = "/set", method = RequestMethod.POST)
 	public String setKeyValue(HttpServletRequest request) {
 		String key = request.getParameter("key");
 		String value = request.getParameter("value");
 		if (key == null || value == null) {
 			return "either key or value not available";
 		}
-		redisClientService.set(key, value);
+		
+		BasicPutRequest<String> putRequest = new BasicPutRequest<>();
+		putRequest.setKey(key);
+		putRequest.setValue(value);
+		putRequest.setNamespace(Constants.KEY_VALUE_NAMESPACE);
+		putRequest.setTtl(Constants.KEY_VALUE_TTL);
+		cacheClientService.set(putRequest);
 		return key + " added";
 	}
 
-	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	public String getkeyValue(HttpServletRequest request) {
 		String key = request.getParameter("key");
 		if (key != null) {
-			String value = redisClientService.get(key);
+			
+			GetRequest<String> getRequest = new GetRequest<>();
+			getRequest.setKey(key);
+			getRequest.setNamespace(Constants.KEY_VALUE_NAMESPACE); 
+			String value = cacheClientService.get(getRequest, String.class);
 			if (value == null) {
 				return "no value available";
 			}
@@ -84,9 +103,6 @@ public class HomeController {
 	// <------------------------------->
 	// redis cache at method level arguments
 	// <------------------------------->
-
-	@Autowired
-	private UserRepository userRepository;
 
 	@Cacheable(value = "userDataA", key = "#userId"/*, unless = "#result.followers < 12000"*/)
 	@RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
