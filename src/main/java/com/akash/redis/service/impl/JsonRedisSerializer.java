@@ -12,10 +12,13 @@ public class JsonRedisSerializer {
 	private static final ObjectMapper mapper;
 
 	static {
-		mapper = new ObjectMapper().enableDefaultTyping(DefaultTyping.NON_FINAL, As.PROPERTY);
+		mapper = new ObjectMapper();
 	}
 
 	public static String serialize(Object object) {
+		if(object instanceof String) {
+			return object.toString();
+		}
 		try {
 			return mapper.writeValueAsString(object);
 		} catch (JsonProcessingException e) {
