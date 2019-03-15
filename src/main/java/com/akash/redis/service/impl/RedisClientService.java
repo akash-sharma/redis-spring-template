@@ -69,14 +69,11 @@ public class RedisClientService implements CacheClientService {
 	public <T> List<T> getList(GetRequest<T> request, Class<T> clazz) {
 		String key = request.getNamespace() + Constants.SEPARATOR + request.getKey();
 		List<String> values = listOps.range(key, 0, -1);
-		if(values != null) {
-			List<T> objects = new ArrayList<>();
-			for(String value : values) {
-				objects.add(JsonRedisSerializer.deserialize(value, clazz));
-			}
-			return objects;
+		List<T> objects = new ArrayList<>();
+		for(String value : values) {
+			objects.add(JsonRedisSerializer.deserialize(value, clazz));
 		}
-		return Collections.emptyList();
+		return objects;
 	}
 	
 	@Override
