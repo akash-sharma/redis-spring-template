@@ -2,6 +2,8 @@ package com.akash.redis.model.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 public class User implements Serializable {
@@ -14,6 +16,8 @@ public class User implements Serializable {
     private Long id;
     private String name;
     private Long followers;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public User() {
     }
@@ -46,7 +50,11 @@ public class User implements Serializable {
 	public void setFollowers(Long followers) {
 		this.followers = followers;
 	}
-	
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
 	@Override
     public String toString() {
         return "User{id="+id+", name="+name+", followers="+followers+"}";
