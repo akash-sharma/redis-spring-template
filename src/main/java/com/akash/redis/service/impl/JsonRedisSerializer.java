@@ -1,18 +1,17 @@
 package com.akash.redis.service.impl;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import java.io.IOException;
 
 public class JsonRedisSerializer {
 
 	private static final ObjectMapper mapper;
 
 	static {
-		mapper = new ObjectMapper();
+		mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 	}
 
 	public static String serialize(Object object) {
